@@ -1,0 +1,34 @@
+/include/ "system-conf.dtsi"
+/ {
+	amba_pl: amba_pl {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges ;
+		dpu_eu_0: dpu_eu@4f000000 {
+			clock-names = "s_axi_aclk", "dpu_2x_clk", "m_axi_dpu_aclk";
+			clocks = <&misc_clk_0>, <&misc_clk_1>, <&misc_clk_2>;
+			compatible = "deephi,dpu";
+			interrupt-names = "dpu_interrupt";
+			interrupt-parent = <&intc>;
+			interrupts = <0 29 4>;
+			reg = <0x4f000000 0x1000000>;
+		};
+		misc_clk_0: misc_clk_0 {
+			#clock-cells = <0>;
+			clock-frequency = <100000000>;
+			compatible = "fixed-clock";
+		};
+		misc_clk_1: misc_clk_1 {
+			#clock-cells = <0>;
+			clock-frequency = <300000000>;
+			compatible = "fixed-clock";
+		};
+		misc_clk_2: misc_clk_2 {
+			#clock-cells = <0>;
+			clock-frequency = <150000000>;
+			compatible = "fixed-clock";
+		};
+	};
+};
+

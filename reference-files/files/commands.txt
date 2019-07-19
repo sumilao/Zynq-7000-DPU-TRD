@@ -1,0 +1,34 @@
+source <path/to/petalinux-installer>/settings.sh
+
+petalinux-create --type project --template zynq --name pynq-z2-dpu
+petalinux-create --type project --source ./prebuilts/pynq-z2-dpu.bsp --name pynq-z2-dpu
+
+cp -rp ../files/recipes-kernel project-spec/meta-user
+cp -rp ../files/recipes-modules project-spec/meta-user
+cp -rp ../files/recipes-apps/autostart/ project-spec/meta-user/recipes-apps/
+cp -rp ../files/recipes-core/base-files/ project-spec/meta-user/recipes-core/
+
+vi project-spec/meta-user/recipes-core/images/petalinux-image-full.bbappend
+
+IMAGE_INSTALL_append = " autostart"
+IMAGE_INSTALL_append = " dpu"
+
+petalinux-config --get-hw-description=../hsi 
+
+petalinux-config -c rootfs
+
+vi project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
+
+petalinux-build
+
+petalinux-package --boot --fsbl ./images/linux/zynq_fsbl.elf --fpga ./images/linux/system.bit --u-boot --force
+
+petalinux-package --bsp -p ./ -o pynq-z2-dpu.bsp
+
+-- Copy files to staging directory
+
+cp ./images/linux/BOOT.BIN /media/$(whoami)BOOT/
+cp ./images/linux/image.ub /media/$(whoami)/BOOT/
+tar xzf ./images/linux/rootfs.tar.gz -C /media/$(whoami)/rootfs/
+cp -r ../sdcard/* /media/$(whoami)/rootfs/home/root/
+sync
